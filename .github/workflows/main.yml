@@ -1,18 +1,26 @@
 name: Ryan's CI/CD with Docker
+
 on:
- push:
-  branches:
-    - main
+  push:
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
     - name: Build Frontend Docker image
       run: docker build -t fsd-week13 -f src/Dockerfile .
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+    - name: Tag Frontend Docker image
+      run: docker tag fsd-week13 ${{ secrets.DOCKER_USERNAME }}/fsd-week13:latest
+
     - name: Push Frontend Docker image to Docker Hub
-      run: |
-        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-        docker tag fsd-week13 ${{ secrets.DOCKER_USERNAME }}/fsd-week13
-        docker push ${{ secrets.DOCKER_USERNAME }}/fsd-week13
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/fsd-week13:latest
